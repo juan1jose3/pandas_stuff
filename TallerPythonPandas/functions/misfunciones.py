@@ -32,7 +32,7 @@ def alterar_columnas(path, new_columns:list):
         df.columns = new_columns
         df.dropna(axis=1, how="all", inplace=True)
         df.dropna(subset=["modificado"], inplace=True)
-        path_salida = os.path.join(path,"temporal_transformado.csv")
+        path_salida = os.path.join(path,"temporal.csv")
         df.to_csv(path_salida)
         return "Columnas alteradas yay jeje"
     except Exception as e:
