@@ -28,7 +28,7 @@ def unir_excel_en_csv(path):
 def alterar_columnas(path, new_columns:list):
     new_data_path = os.path.join(path,"temporal.csv")
     try:
-        df = pd.read_csv(new_data_path)
+        df = pd.read_csv(new_data_path,low_memory=False)
         df.columns = new_columns
         df.dropna(axis=1, how="all", inplace=True)
         df.dropna(subset=["modificado"], inplace=True)
@@ -53,7 +53,7 @@ def establecer_conexion(nombre_bd):
 def cargar_datos(conn, path, cols,query_sql):
     try:
         cursor = conn.cursor()
-        df = pd.read_csv(path)
+        df = pd.read_csv(path,low_memory=False)
         df_final = df[list(cols)]
         df_final = df_final.replace({pd.NA: None, np.nan: None})
         data_to_insert = [tuple(x) for x in df_final.values]
