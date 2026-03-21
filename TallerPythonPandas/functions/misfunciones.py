@@ -34,7 +34,7 @@ def alterar_columnas(path, new_columns:list):
         df.dropna(subset=["modificado"], inplace=True)
         path_salida = os.path.join(path,"temporal.csv")
         df.to_csv(path_salida)
-        return "Columnas alteradas yay jeje"
+        return "Columnas alteradas jajaj"
     except Exception as e:
         return f"bloody error: {e}"
 
@@ -90,4 +90,49 @@ def obtener_datos_tiempo(conn):
     except Exception as e:
         print(f"Error: {e}")
         return None
+
+
+
+def crear_nueva_db(path, nombre_bd):
+    config = {
+        "user":"root",
+        "password":"root",
+        'host': '127.0.0.1',
+        'port': '9090'
+    }
+    new_conn = mysql.connector.connect(**config)
+    cursor = new_conn.cursor()
+
+    cursor.execute(f"CREATE DATABASE IF NOT EXISTS {nombre_bd};")
+    new_conn.close()
+
+    conn = establecer_conexion(nombre_bd)
+    cursor = conn.cursor()
+
+    with open(path, "r") as f:
+        queries = f.read().split(";")
+
+    for query in queries:
+        current_query = query.strip()
+        if current_query:
+            try:
+                cursor.execute(current_query)
+            except Exception as e:
+                    print(f"Not a query: {query[:30]}... -> {e}")
+    conn.commit()
+    return "Nueva base de datos creada"
+
+
+
+def perform_basic_select(conn ,table):
+    return pd.read_sql(f"SELECT * FROM {table} LIMIT 5",conn)
+
+
+
+
+    
+
+    
+
+    
 
