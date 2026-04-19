@@ -1,0 +1,61 @@
+services:
+  core:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: core_container
+    restart: unless-stopped
+    ports:
+      - "8000:8080"
+    volumes:
+      - .:/app
+
+  # Contenedores de MongoDB
+  mongodb_articulos:
+    image: mongo:6.0
+    container_name: mongodb_articulos
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+    ports:
+      - "27017:27017"
+    volumes:
+      - ".:/data/db_imports"
+
+  mongodb_personas:
+    image: mongo:6.0
+    container_name: mongodb_personas
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+    ports:
+      - "28018:27017"
+    volumes:
+      - ".:/data/db_imports"
+
+  mongodb_ventas:
+    image: mongo:6.0
+    container_name: mongodb_ventas
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+    ports:
+      - "29019:27017"
+    volumes:
+      - ".:/data/db_imports"
+
+  # Contenedor de SQLite
+
+
+  sqlite_db:
+    image: keinos/sqlite3:latest
+    container_name: sqlite_db
+    stdin_open: true
+    tty: true
+    volumes:
+      - .:/workspace:Z
+    working_dir: /workspace
+
