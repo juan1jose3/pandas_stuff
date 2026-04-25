@@ -9,7 +9,7 @@ use Mojo::UserAgent;
 
 
 
-# Conectar a la base de datos mariadb
+# Conectar a la base de datos sqlite
 
 my $dsn = "dbi:SQLite:dbname=/app/almacen.sqlite";
 
@@ -29,13 +29,13 @@ my $mongo_ventas    = MongoDB->connect('mongodb://root:root@mongodb_ventas:27017
 sub get_result_personas {  
     my @list;
     eval {
-        # Put the timeout directly in the URI string
+       
         my $client = MongoDB->connect('mongodb://root:root@mongodb_personas:27017/?connectTimeoutMS=5000');
         
-        my $db         = $client->get_database('base_personas');
+        my $db = $client->get_database('base_personas');
         my $collection = $db->get_collection('personas');
 
-        # Keep the limit at 10 for now just to prove it works
+      
         my $cursor = $collection->find->limit(10);
         
         while (my $doc = $cursor->next) {
@@ -102,36 +102,32 @@ sub get_result_ventas {
 # Función para cargar datos desde archivos JSON a MongoDB
 sub load_data_to_mongo {
 
-    my $c = shift; # This is the Mojo controller
+    my $c = shift; 
 
-    # The Manager calls the workers in order
+   
     etl_process_personas();
     etl_process_articulos();
     etl_process_ventas();
 
-    # The Manager tells the user the job is done
+    
     $c->render(json => { message => "All systems loaded" });
 }
 
 # Función para registrar mensajes de depuración
 sub log_debug {
     my ($message) = @_;
-    my $log_file = '/app/data/debug.log';  # Especifica la ruta completa al archivo de log
-    open(my $fh, '>>', $log_file) or return;  # Si falla el log, ignorar silenciosamente
-    print $fh localtime() . " - $message\n";  # Incluye timestamp
+    my $log_file = '/app/data/debug.log'; 
+    open(my $fh, '>>', $log_file) or return;  
+    print $fh localtime() . " - $message\n";  
     close $fh;
 }
 
 
 # Función para extraer y cargar personas
 sub etl_process_personas {
-    # 1. EXTRACT: Read the file from the volume path
+    
     my $json_text = read_file('/app/personas.json');
-
-    # 2. TRANSFORM: Turn text into a Perl array
     my $data = decode_json($json_text);
-
-    # 3. LOAD: Insert into the MongoDB collection
     my $col = $mongo_personas->get_database('base_personas')->get_collection('personas');
     $col->insert_many($data);
     
@@ -142,12 +138,9 @@ sub etl_process_personas {
 
 # Función para extraer y cargar artículos
 sub etl_process_articulos {
+    
     my $json_text = read_file('/app/articulos.json');
-
-    # 2. TRANSFORM: Turn text into a Perl array
     my $data = decode_json($json_text);
-
-    # 3. LOAD: Insert into the MongoDB collection
     my $col = $mongo_articulos->get_database('base_articulos')->get_collection('articulos');
     $col->insert_many($data);
     
@@ -157,12 +150,9 @@ sub etl_process_articulos {
 
 # Función para extraer y cargar ventas
 sub etl_process_ventas {
+    
     my $json_text = read_file('/app/ventas.json');
-
-    # 2. TRANSFORM: Turn text into a Perl array
     my $data = decode_json($json_text);
-
-    # 3. LOAD: Insert into the MongoDB collection
     my $col = $mongo_ventas->get_database('base_ventas')->get_collection('ventas');
     $col->insert_many($data);
     
@@ -170,11 +160,10 @@ sub etl_process_ventas {
  
 }
 
-# ─── Utilidad: limpia un valor y lo convierte a número ─────────────────────
+
 sub limpiar_numerico {
     my ($val) = @_;
     return 0 unless defined $val;
-    # Quitar todo lo que no sea dígito ni punto decimal
     (my $clean = "$val") =~ s/[^0-9.]//g;
     return length($clean) ? $clean + 0 : 0;
 }
@@ -209,7 +198,7 @@ get '/mongo/ventas' => sub {
     $c->render(json => $data);
 };
 
-# ─── Rutas /all: devuelven TODOS los documentos (sin límite) ─────────────────
+
 get '/mongo/personas/all' => sub {
     my $c = shift;
     my @list;
